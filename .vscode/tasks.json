@@ -9,6 +9,7 @@
                 "-g",
                 "main.cpp",
                 "model.cpp",
+                "scheutjens_model.cpp",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
                 "-I",

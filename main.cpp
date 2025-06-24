@@ -3,6 +3,7 @@
 //#include "lib/eigen-3.4.0/eigen-3.4.0/Eigen/Dense"
 #include "Eigen/Dense"
 #include "Model.h"
+#include "scheutjens_model.h"
 #include <functional>
 
 using namespace Eigen;
@@ -80,8 +81,8 @@ void newthon(std::function<void(Eigen::VectorXd&,Eigen::VectorXd&,int)> func, do
         //std::cout << "Jacobian matrix J: " << std::endl;
         //std::cout << J << std::endl; // Print Jacobian matrix
         MatrixXd J_inv = J.inverse(); // Inverse of Jacobian matrix
-        std::cout << "Inverse Jacobian matrix J_inv: " << std::endl;
-        std::cout << J_inv << std::endl; // Print inverse Jacobian matrix
+        //std::cout << "Inverse Jacobian matrix J_inv: " << std::endl;
+        //std::cout << J_inv << std::endl; // Print inverse Jacobian matrix
        
         VectorXd step_vec = J_inv * fs; // Calculate step vector
         xs-= step_vec; // Update xs with step vector
@@ -103,8 +104,8 @@ int main()
     matrixA(1, 1) = 2.0;   
     matrixA(2, 2) = 2.0;
     std::cout << matrixA << std::endl;
-    Matrix3d m = matrixA.inverse();
-    std::cout << m << std::endl;
+    Matrix3d A_inv = matrixA.inverse();
+    std::cout << A_inv << std::endl;
     ///
     Model model;
     model.initialized = false;
@@ -127,4 +128,39 @@ int main()
     for(int i = 0; i < n; i++) {
         std::cout << xss[i] << " ";
     }
+
+    std::cout <<"***********************"<< std::endl;
+    std::cout <<"***********************"<< std::endl;
+    std::cout << "SCHEUTJENS MODEL TEST" << std::endl;
+    std::cout <<"***********************"<< std::endl;
+    std::cout <<"***********************"<< std::endl; 
+    std::cout << "Press any button to continue..."<< std::endl; 
+    int s=0;
+    std::cin >> s;
+
+    Scheutjens_Model poly_model;
+    poly_model.Init();
+
+    std::cout<< "Scheutjens model initialized: " << poly_model.initialized << std::endl;
+    int m = poly_model.M;
+    std::cout << "M: " << m << std::endl;
+    std::cout << "r: " << poly_model.r << std::endl;
+
+    double* X_initial = new double[m];
+    double* X_res = new double[m];
+    for(int i = 0; i < m; i++) {
+        X_initial[i] = log(poly_model.phi_bulk[0]/(1-poly_model.phi_bulk[0])); // Initial guess for Scheutjens model
+    }
+
+    newthon([&poly_model](Eigen::VectorXd& xs, Eigen::VectorXd& ys, int n) { poly_model.function(xs, ys, n); }, X_res, m, X_initial, 1e-8, 10000);
+    
+    std::cout << "Scheutjens model results: ";
+    for(int i = 0; i < m; i++) {
+        double phi_i = exp(X_res[i]) / (1 + exp(X_res[i])); // Convert results back to phi_i
+        std::cout << phi_i << " " << std::endl;
+    }
+
+    Eigen::VectorXd p_i = poly_model.p_matrix.col(0);
+    std::cout << "p_i: " << std::endl;
+    std::cout << p_i<< std::endl;
 }
