@@ -53,6 +53,7 @@ void newthon(std::function<void(Eigen::VectorXd&,Eigen::VectorXd&,int)> func, do
 
     for(int i=0;i<max_iterations;i++)
     {
+        std::cout << "Iteration: " << i << std::endl;
         func(xs, fs, n);
         //Check convergence
         double delta = fs.dot(fs); // Dot product to calculate the sum of squares
@@ -97,38 +98,6 @@ void newthon(std::function<void(Eigen::VectorXd&,Eigen::VectorXd&,int)> func, do
  */
 int main()
 {
-    std::cout << "Hello world!" << std::endl;
-    Matrix<double,3,3> matrixA;
-    matrixA.setZero();
-    matrixA(0, 0) = 1.0;
-    matrixA(1, 1) = 2.0;   
-    matrixA(2, 2) = 2.0;
-    std::cout << matrixA << std::endl;
-    Matrix3d A_inv = matrixA.inverse();
-    std::cout << A_inv << std::endl;
-    ///
-    Model model;
-    model.initialized = false;
-    model.Init();
-    std::cout << model.initialized << std::endl;
-
-    double x;
-    newthon_single([&model](double x) { return model.function(x); },&x, 0.0, 1e-6, 1000);
-    std::cout << "Result from single Newton's method: " << x << std::endl;
-
-    double* xss = new double[2];
-    double* initial_guess = new double[2];
-    int n = 3; // Number of variables
-    for(int i = 0; i < n; i++) {
-        initial_guess[i] = 0.0001; // Initial guess for multi-variable Newton's method
-    }
-    newthon([&model](Eigen::VectorXd& xs, Eigen::VectorXd& ys, int n) { model.function(xs, ys, n); }, xss, n, initial_guess, 1e-6, 1000);
-    
-    std::cout << "Result from multi-variable Newton's method: ";
-    for(int i = 0; i < n; i++) {
-        std::cout << xss[i] << " ";
-    }
-
     std::cout <<"***********************"<< std::endl;
     std::cout <<"***********************"<< std::endl;
     std::cout << "SCHEUTJENS MODEL TEST" << std::endl;
@@ -152,7 +121,7 @@ int main()
         X_initial[i] = log(poly_model.phi_bulk[0]/(1-poly_model.phi_bulk[0])); // Initial guess for Scheutjens model
     }
 
-    newthon([&poly_model](Eigen::VectorXd& xs, Eigen::VectorXd& ys, int n) { poly_model.function(xs, ys, n); }, X_res, m, X_initial, 1e-8, 10000);
+    newthon([&poly_model](Eigen::VectorXd& xs, Eigen::VectorXd& ys, int n) { poly_model.function(xs, ys, n); }, X_res, m, X_initial, 1e-8, 1000);
     
     std::cout << "Scheutjens model results: ";
     for(int i = 0; i < m; i++) {
