@@ -4,6 +4,7 @@ class Scheutjens_Model{
     public:
     
     void Init();
+    void InitFromFile();
     void function(Eigen::VectorXd&  xs,   Eigen::VectorXd&  ys, int n);
     void Calculate_avr_phi_i();
     void Print_Vector(const Eigen::VectorXd& vec);
@@ -13,6 +14,8 @@ class Scheutjens_Model{
     void Calculate_ln_p_i();
 
     bool initialized;
+    bool new_method;
+    bool output;
     int M;
     int r;
     double chi;   //Flory parameter

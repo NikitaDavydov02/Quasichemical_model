@@ -33,7 +33,7 @@ void newthon_single(std::function<double(double)> func, double* res, double init
     }
     return;
 }
-void newthon(std::function<void(Eigen::VectorXd&,Eigen::VectorXd&,int)> func, double* res, int n, double* initial_guess = NULL, double tolerance = 1e-6, int max_iterations = 1000)
+void newthon(std::function<void(Eigen::VectorXd&,Eigen::VectorXd&,int)> func, double* res, int n, double  break_coeff=1.0, double* initial_guess = NULL, double tolerance = 1e-6, int max_iterations = 1000)
 {
     // Placeholder for Newton's method implementation
     // This function will be implemented in the future
@@ -50,14 +50,23 @@ void newthon(std::function<void(Eigen::VectorXd&,Eigen::VectorXd&,int)> func, do
     {
         xs(i) = initial_guess[i]; // Initialize xs with initial_guess
     }
+    
+    //<COMMENT>
+    //xs << 0.40815,	0.17409	,0.069353	,0.039993,	0.02751,	0.021089,	0.017388,	0.015084,	0.013569,	0.012513,	0.011798,	0.011267	,0.010878,	0.0105,	0.010374,	0.010214	,0.010096,	0.01001,	0.0099499,	0.0099087;
+    //</COMMENT>
 
     for(int i=0;i<max_iterations;i++)
     {
         std::cout << "Iteration: " << i << std::endl;
         func(xs, fs, n);
         //Check convergence
+        
         double delta = fs.dot(fs); // Dot product to calculate the sum of squares
-       
+
+        std::cout<< std::endl;
+        std::cout << "Delta f: " << fs << std::endl;
+        std::cout<< std::endl;
+
         if (std::abs(delta) < tolerance) {
             std::cout << "Converged" << std::endl;
             for(int j=0;j<n;j++) {
@@ -86,7 +95,9 @@ void newthon(std::function<void(Eigen::VectorXd&,Eigen::VectorXd&,int)> func, do
         //std::cout << J_inv << std::endl; // Print inverse Jacobian matrix
        
         VectorXd step_vec = J_inv * fs; // Calculate step vector
-        xs-= step_vec; // Update xs with step vector
+        xs-= step_vec*break_coeff; // Update xs with step vector
+
+        std::cout << "Updated xs: " << xs.transpose() << std::endl; // Print updated xs
     }
     return;
 }
@@ -103,10 +114,7 @@ int main()
     std::cout << "SCHEUTJENS MODEL TEST" << std::endl;
     std::cout <<"***********************"<< std::endl;
     std::cout <<"***********************"<< std::endl; 
-    std::cout << "Press any button to continue..."<< std::endl; 
-    int s=0;
-    std::cin >> s;
-
+    
     Scheutjens_Model poly_model;
     poly_model.Init();
 
@@ -115,21 +123,48 @@ int main()
     std::cout << "M: " << m << std::endl;
     std::cout << "r: " << poly_model.r << std::endl;
 
+    std::cout << "Press any button to continue..."<< std::endl; 
+    int s=0;
+    std::cin >> s;
+
     double* X_initial = new double[m];
     double* X_res = new double[m];
     for(int i = 0; i < m; i++) {
         X_initial[i] = log(poly_model.phi_bulk[0]/(1-poly_model.phi_bulk[0])); // Initial guess for Scheutjens model
     }
 
-    newthon([&poly_model](Eigen::VectorXd& xs, Eigen::VectorXd& ys, int n) { poly_model.function(xs, ys, n); }, X_res, m, X_initial, 1e-8, 1000);
+    double break_coeff=0.1;
+    newthon([&poly_model](Eigen::VectorXd& xs, Eigen::VectorXd& ys, int n) { poly_model.function(xs, ys, n); }, X_res, m, break_coeff, X_initial, 1e-10, 1000);
     
-    std::cout << "Scheutjens model results: ";
+    std::cout << "Scheutjens model results: " << std::endl;
     for(int i = 0; i < m; i++) {
         double phi_i = exp(X_res[i]) / (1 + exp(X_res[i])); // Convert results back to phi_i
         std::cout << phi_i << " " << std::endl;
     }
 
+    std::cout << std::endl;
     Eigen::VectorXd p_i = poly_model.p_matrix.col(0);
     std::cout << "p_i: " << std::endl;
     std::cout << p_i<< std::endl;
+
+    std::cout << "Convergence check: " << std::endl;
+    std::cout << "Press any button to continue..." << std::endl;
+    std::cin >> s;
+
+    Eigen::VectorXd X_res_vec(m);
+    Eigen::VectorXd ln_conv(m);
+    for(int i=0;i<m;i++)
+    {
+        X_res_vec(i)=X_res[i];
+    }  
+
+    poly_model.function(X_res_vec,ln_conv,m);
+    std::cout << "ln_conv: " << std::endl;
+    std::cout << ln_conv << std::endl;
+    std::cout << "p_matrix: " << std::endl;
+    std::cout << poly_model.p_matrix << std::endl;
+    std::cout << "phi_i_dashed: " << std::endl;
+    std::cout << poly_model.phi_i_dashed << std::endl;
+    std::cout << "phi_i: " << std::endl;
+    std::cout << poly_model.phi_i << std::endl;
 }
