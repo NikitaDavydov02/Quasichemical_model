@@ -13,6 +13,10 @@ class Scheutjens_Model{
     void Calculate_phi_i_dashed();
     void Calculate_ln_p_i();
 
+    int max_iter;
+    double required_error;
+    double newthon_break_coeff;
+
     bool initialized;
     bool new_method;
     bool output;

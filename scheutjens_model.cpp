@@ -31,9 +31,9 @@ void Scheutjens_Model::Init() {
     lamda_1 = 0.25;
 
     new_method = true; // Set to true for the new method, false for the old method
-    std::cout << std::endl;
-    std::cout<< "new method: " << new_method << std::endl;
-    std::cout << std::endl;
+    //std::cout << std::endl;
+    //std::cout<< "new method: " << new_method << std::endl;
+    //std::cout << std::endl;
 
     //lamda_0=0.5;
    // lamda_1=0.25;
@@ -259,6 +259,15 @@ void Scheutjens_Model::InitFromFile() {
 
     std::string line;
     int i=1;
+    M=20;
+    r=1000;
+    chi=0.0;
+    chi_s=0.0;
+    phi_bulk[0]=0.01;
+    output=false;
+    max_iter=0;
+    required_error=0;
+    newthon_break_coeff=0;
     while (std::getline(file, line)) {  // read one line at a time
         std::cout << line << std::endl; // process the line
         std::istringstream iss(line);  
@@ -277,6 +286,12 @@ void Scheutjens_Model::InitFromFile() {
             phi_bulk[0] = std::stod(word);
         if(i==6)
             output = (word == "true" || word == "1"); // Convert string to bool
+        if(i==7)
+            max_iter = std::stoi(word);
+        if(i==8)
+            required_error = std::stod(word);
+        if(i==9)
+            newthon_break_coeff = std::stod(word);
         i++;
     }
 
