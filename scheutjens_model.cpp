@@ -69,7 +69,7 @@ void Scheutjens_Model::function( Eigen::VectorXd& xs,  Eigen::VectorXd& ys, int 
     }
 
     //<COMMENT>
-    /*phi_i << 0.40815,	0.17409	,0.069353	,0.039993,	0.02751,	0.021089,	0.017388,	0.015084,	0.013569,	0.012513,	0.011798,	0.011267	,0.010878,	0.0105,	0.010374,	0.010214	,0.010096,	0.01001,	0.0099499,	0.0099087;
+    /*phi_i << 0.40815,	0.17409	,0.069353	,0.039993,	0.02751,	0.021089,	0.017388,	0.015084,	0.013569,	0.012513,	0.011798,	0.011267	,0.010878,	0.010589,	0.010374,	0.010214	,0.010096,	0.01001,	0.0099499,	0.0099087;
     for(int i=0; i<M; i++)
         phi_solv_i(i) = 1 - phi_i(i); // Assuming solvent fraction is 1 - polymer fraction
     Print_Vector(phi_i);*/
@@ -100,7 +100,8 @@ void Scheutjens_Model::Calculate_ln_p_i()
 {
     for(int i=0; i<M; i++)
     {
-       double lnP_i = chi*(avr_phi_i[i]-avr_phi_solv_i[i])+log(avr_phi_solv_i[i]);//[TO DO] check if this is correct
+        double lnP_i = chi*(avr_phi_i[i]-avr_phi_solv_i[i])+log(phi_solv_i[i]);//[TO DO] check if this is correct
+       //double lnP_i = chi*(avr_phi_i[i]-avr_phi_solv_i[i])+log(avr_phi_solv_i[i]);//[TO DO] check if this is correct
         //double lnP_i = chi*(avr_phi_i[i]-avr_phi_solv_i[i])+log(avr_phi_i[i]);
 
         if(i==0)
